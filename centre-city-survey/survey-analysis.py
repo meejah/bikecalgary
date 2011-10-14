@@ -5,18 +5,10 @@
 
 import csv
 import numpy
-#reader = csv.reader(open('downtown-calgary-cycling-engagement.csv','r'))
 reader = csv.reader(open('sanitized-data.csv','r'))
 
 
 titles = reader.next()
-
-reader.next()                           # debugging line of mike's response
-
-## first column is the timestamp
-## second column is blank
-## last column is the email address
-
 
 ## for the routes questions, they are columns
 ## (so subtract 2 because we nuke 0, 1)
