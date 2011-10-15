@@ -19,8 +19,22 @@ import csv
 import numpy
 import sys
 reader = csv.reader(open('sanitized-data.csv','r'))
-
 titles = reader.next()
+
+fearless = 'female'
+fearless_index = 2
+
+total = 0.0
+total_fearless = 0.0
+for line in reader:
+    if line[fearless_index].lower() != fearless:
+        total += 1
+    else:
+        total_fearless += 1
+
+reader = csv.reader(open('sanitized-data.csv','r'))
+titles = reader.next()
+            
 
 ## this is the index into the data of which roads we're interested in
 
@@ -29,14 +43,15 @@ titles = {3: 'North of CPR, east/west routes',
           5: 'South of CPR, east/west routes',
           6: 'South of CPR, north/south routes'}
 
+
 def generate_plot(index, fname):
     answers = {}
     answers['both 9th and 8th'] = 0
     fearless_answers = {}
     fearless_answers['both 9th and 8th'] = 0
     for line in reader:
-        print line[2]
-        if line[2].lower() == 'female':
+        print line[fearless_index]
+        if line[fearless_index].lower() != fearless:
             ans = answers
         else:
             ans = fearless_answers
@@ -73,7 +88,11 @@ def generate_plot(index, fname):
     items.sort(sorter)
     fearless_items = []
     for (k,v) in items:
-        fearless_items.append((k, fearless_answers[k]))
+        print k,v
+        answers[k] = v / total
+        fearless_items.append((k, fearless_answers[k] / total_fearless))
+    items = answers.items()
+    items.sort(sorter)
 
     
 
@@ -85,12 +104,12 @@ def generate_plot(index, fname):
     plt.subplots_adjust(left=0.3)
     print map(lambda x: x[1], items)
     rects = ax1.barh(ind, map(lambda x: x[1], items), 0.45, color='blue')
-#    for rect in rects:
-#        ax1.text(2, rect.get_y()+(rect.get_height()/2.0), int(rect.get_width()), color='white', verticalalignment='center', weight='bold')
+    for rect in rects:
+        ax1.text(2, rect.get_y()+(rect.get_height()/2.0), int(rect.get_width()), color='white', verticalalignment='center', weight='bold')
                  
     rects = ax2.barh(ind+0.5, map(lambda x: x[1], fearless_items), 0.45, color='red')
-#    for rect in rects:
-#        ax2.text(2, rect.get_y()+(rect.get_height()/2.0), int(rect.get_width()), color='white', verticalalignment='center', weight='bold')
+    for rect in rects:
+        ax2.text(2, rect.get_y()+(rect.get_height()/2.0), int(rect.get_width()), color='white', verticalalignment='center', weight='bold')
         
     plt.ylabel("Road")
     def format(s):
