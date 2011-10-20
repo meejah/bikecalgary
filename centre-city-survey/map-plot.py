@@ -151,7 +151,10 @@ for (k,v) in north_roads.items():
 print "SOUTH:"
 for (k,v) in south_roads.items():
     print k,v
-#print roads
+
+print "East/West:"
+for (k,v) in roads.items():
+    print k,v
 
 ax = plt.axes()
 for way in named_ways:
@@ -190,6 +193,10 @@ for way in named_ways:
             else:
                 line = mlines.Line2D(x, y, lw=0.5, alpha=1.0, color='yellow')
     else:
+        ## for east/west roads we want them to extend past center stret
+        if 'avenue' in k and k[-1] == 'e':
+            k = k[:-1] + 'w'
+            
         if roads.has_key(k):
             linewidth = (roads[k] * 16.0) + 1.0
             #print k,linewidth
@@ -198,6 +205,5 @@ for way in named_ways:
             line = mlines.Line2D(x, y, lw=0.5, alpha=0.4, color='black')
     if line:
         ax.add_line(line)
-
-#plt.savefig('map-plot.png')
-plt.show()
+plt.savefig('map-plot.svg', transparent=True)
+#plt.show()
