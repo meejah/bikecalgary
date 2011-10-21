@@ -21,8 +21,8 @@ import sys
 reader = csv.reader(open('sanitized-data.csv','r'))
 titles = reader.next()
 
-fearless = 'female'
-fearless_index = 2
+fearless = 'fearless'
+fearless_index = 1
 
 total = 0.0
 total_fearless = 0.0
@@ -106,11 +106,17 @@ def generate_plot(index, fname):
     rects = ax1.barh(ind, map(lambda x: x[1], items), 0.45, color='blue')
     for rect in rects:
         ax1.text(2, rect.get_y()+(rect.get_height()/2.0), int(rect.get_width()), color='white', verticalalignment='center', weight='bold')
-                 
+
+    a = rects[0]
+    
     rects = ax2.barh(ind+0.5, map(lambda x: x[1], fearless_items), 0.45, color='red')
     for rect in rects:
         ax2.text(2, rect.get_y()+(rect.get_height()/2.0), int(rect.get_width()), color='white', verticalalignment='center', weight='bold')
-        
+
+    b = rects[0]
+
+    ax1.legend( (a, b), ['not-'+fearless, fearless], (.6, .05))
+    
     plt.ylabel("Road")
     def format(s):
         if '(' in s:
@@ -119,8 +125,8 @@ def generate_plot(index, fname):
     plt.yticks(numpy.arange(N)+0.5, map(lambda x: format(x[0]), items))
     plt.title(titles[index])
     plt.margins(0, 0, tight=False)
-    plt.savefig(fname)
+    plt.savefig(fname, transparent=True)
 
 idx = int(sys.argv[1])
-generate_plot(idx, "plot_%d.png"%idx)
+generate_plot(idx, "plot_%d.svg"%idx)
 
