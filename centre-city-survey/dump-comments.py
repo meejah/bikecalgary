@@ -5,14 +5,23 @@
 import csv
 import random
 
-reader = csv.reader(open('sanitized-data.csv','r'))
+with_emails = False
+
+reader = csv.reader(open('downtown-calgary-cycling-engagement.csv','r'))
 reader.next()                           # headers
 
 for line in reader:
-    comment = line[9].strip()
+    comment = line[12].strip()
     if len(comment) == 0:
         continue
 
-    comment.replace('\n', ' ')
-    print comment
+    email = None
+    if len(line) > 22:
+        email = line[22]
+    comment = comment.replace('\n', ' ')
+    comment = comment.replace('\r', ' ')
+    if with_emails and email:
+        print "(" + email.strip() + ")",comment
+    else:
+        print comment
     print
