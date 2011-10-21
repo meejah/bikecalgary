@@ -13,7 +13,7 @@ import types
 reader = csv.reader(open('sanitized-data.csv','r'))
 titles = reader.next()                  # headers
 
-class ZeroHash(dict):
+class ZeroDict(dict):
     "hash table which assigns 0 to any key you request that doesn't yet exist"
 
     def __getitem__(self, k):
@@ -22,19 +22,19 @@ class ZeroHash(dict):
         return dict.__getitem__(self, k)
 
 
-rider_types = ZeroHash()
-gender = ZeroHash()
-ages = ZeroHash()
-underpasses = ZeroHash()
-underpasses_sep = ZeroHash()
-cyclethrough = ZeroHash()
-cycle_sunny = ZeroHash()
-cycle_winter = ZeroHash()
-walk = ZeroHash()
-transit = ZeroHash()
-drive = ZeroHash()
-trip_end = ZeroHash()
-trip_begin = ZeroHash()
+rider_types = ZeroDict()
+gender = ZeroDict()
+ages = ZeroDict()
+underpasses = ZeroDict()
+underpasses_sep = ZeroDict()
+cyclethrough = ZeroDict()
+cycle_sunny = ZeroDict()
+cycle_winter = ZeroDict()
+walk = ZeroDict()
+transit = ZeroDict()
+drive = ZeroDict()
+trip_end = ZeroDict()
+trip_begin = ZeroDict()
 
 def normalizeStreetName(s):
     return s.split('(')[0].strip()
