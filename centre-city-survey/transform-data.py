@@ -10,17 +10,11 @@ import csv
 import numpy
 import sys
 import types
+from util import ZeroDict
+
+
 reader = csv.reader(open('sanitized-data.csv','r'))
 titles = reader.next()                  # headers
-
-class ZeroDict(dict):
-    "hash table which assigns 0 to any key you request that doesn't yet exist"
-
-    def __getitem__(self, k):
-        if not self.has_key(k):
-            dict.__setitem__(self, k, 0)
-        return dict.__getitem__(self, k)
-
 
 rider_types = ZeroDict()
 gender = ZeroDict()
