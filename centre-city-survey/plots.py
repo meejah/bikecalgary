@@ -125,8 +125,8 @@ def generate_plot(index, fname):
     plt.yticks(numpy.arange(N)+0.5, map(lambda x: format(x[0]), items))
     plt.title(titles[index])
     plt.margins(0, 0, tight=False)
-    plt.savefig(fname, transparent=True)
+    plt.savefig(fname)
 
 idx = int(sys.argv[1])
-generate_plot(idx, "plot_%d.svg"%idx)
+generate_plot(idx, "plot_%d.png"%idx)
 
