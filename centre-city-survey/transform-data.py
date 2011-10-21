@@ -76,15 +76,20 @@ for line in reader:
 
 def gp_output(f, table):
     """outputs data suitable for gnuplot"""
-    keys = table.keys()
-    keys.sort()
-    f.write('# ' + ', '.join(keys) + '\n\n')
-    for k in keys:
+    items = table.items()
+    ## sort by value of the item
+    def sorter(a, b):
+        return cmp(a[1], b[1])
+    items.sort(sorter)
+    items.reverse()
+
+    f.write('# ' + ', '.join(map(lambda x: x[0], items)) + '\n\n')
+    for (k,v) in items:
         if k == '':
             f.write('n/a')
         else:
             f.write(k)
-        f.write(' '+str(table[k])+'\n')
+        f.write(' '+str(v)+'\n')
 
 def csv_output(f, table):
     """outputs CSV data, hopfully good for Excel"""
