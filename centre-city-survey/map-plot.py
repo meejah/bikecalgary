@@ -148,17 +148,20 @@ if True:
 else:
     width, height = 800, 600
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+
 context = cairo.Context(surface)
+context.set_source_rgb(1,1,1)
+context.rectangle(0,0,1,1)
+context.fill()
+
+context.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
+context.set_line_cap(cairo.LINE_CAP_ROUND)
 
 ## normalize the drawing context to (0,0) -> (1,1)
 context.scale(width, height)
 
 ## first we do just the blue roads
 ## (i.e. "the data)
-context.set_source_rgb(1,1,1)
-context.rectangle(0,0,1,1)
-context.fill()
-
 if False:
     context.set_source_rgb(0,0,0)
     context.set_line_width(0.01)
@@ -182,7 +185,7 @@ def draw_line(ctx, coords, lw):
 def project(coord):
     x, y = coord
     return (((x + 114.09567) / east_west_extent) + 0.05,
-            ((y - 51.03727) / north_south_extent) + 0.05)
+            1.0 - ((y - 51.03727) / north_south_extent) + 0.05)
 
 context.set_source_rgb(0,0,1)
 for way in named_ways:
@@ -222,7 +225,7 @@ for way in named_ways:
             draw_line(context, coords, linewidth)
 
 ## now we do *all* the roads, with faint black lines
-context.set_source_rgba(0,0,0,0.9)
+context.set_source_rgba(0,0,0,0.75)
 for way in named_ways:
     coords = map(project, to_coords(way.nds))
     
