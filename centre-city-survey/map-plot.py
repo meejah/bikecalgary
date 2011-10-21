@@ -3,10 +3,9 @@
 import os
 import sys
 import re
-import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
 import csv
 import numpy
+import cairo
 from util import ZeroDict
 import osm
 
@@ -143,24 +142,63 @@ if DEBUG:
     for (k,v) in roads.items():
         print k,v
 
-ax = plt.axes()
+if True:
+    width, height = 800, 600
+    surface = cairo.SVGSurface('map-plot.svg', width, height)
+else:
+    width, height = 800, 600
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+context = cairo.Context(surface)
+
+## normalize the drawing context to (0,0) -> (1,1)
+context.scale(width, height)
 
 ## first we do just the blue roads
 ## (i.e. "the data)
+context.set_source_rgb(1,1,1)
+context.rectangle(0,0,1,1)
+context.fill()
+
+if False:
+    context.set_source_rgb(0,0,0)
+    context.set_line_width(0.01)
+    context.move_to(0,0)
+    context.line_to(1,1)
+    context.stroke()
+    surface.write_to_png('map-plot.png')
+    context.show_page()
+    surface.finish()
+
+    sys.exit(0)
+
+
+def draw_line(ctx, coords, lw):
+    ctx.set_line_width(lw/500.0)
+    ctx.move_to(coords[0][0], coords[0][1])
+    for coord in coords[1:]:
+        ctx.line_to(coord[0], coord[1])
+    ctx.stroke()
+
+def project(coord):
+    x, y = coord
+    return (((x + 114.09567) / east_west_extent) + 0.05,
+            ((y - 51.03727) / north_south_extent) + 0.05)
+
+context.set_source_rgb(0,0,1)
 for way in named_ways:
-    v = to_coords(way.nds)
+    coords = to_coords(way.nds)
     is_north = False
     care_about_north = False
     if 'Street' in way.tags['name'] or 'Trail' in way.tags['name']:
         care_about_north = True
-        for (lng,lat) in v:
+        for (lng,lat) in coords:
             if lat > 51.0442720:
                 is_north = True
             else:
                 pass#print "not north enough",lat,way.tags['name']
-            
-    x = map(lambda a: ((a[0] + 114.09567)/east_west_extent)+0.05, v)
-    y = map(lambda a: ((a[1] - 51.03727)/north_south_extent)+0.05, v)
+
+    ## normalize these coordinates, with a 5% buffer
+    coords = map(project, coords)
 
     k = way.tags['name'].strip().lower()
     k = ' '.join(k.split()[:3])
@@ -169,11 +207,11 @@ for way in named_ways:
         if is_north:
             if north_roads.has_key(k):
                 linewidth = (north_roads[k]*16.0)+1.0
-                ax.add_line(mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue'))
+                draw_line(context, coords, linewidth)
         else:
             if south_roads.has_key(k):
                 linewidth = (south_roads[k]*16.0)+1.0
-                ax.add_line(mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue'))
+                draw_line(context, coords, linewidth)
     else:
         ## for east/west roads we want them to extend past center stret
         if 'avenue' in k and k[-1] == 'e':
@@ -181,20 +219,17 @@ for way in named_ways:
             
         if roads.has_key(k):
             linewidth = (roads[k] * 16.0) + 1.0
-            ax.add_line(mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue'))
+            draw_line(context, coords, linewidth)
 
-## now we do *all* the roads, with faint black lines            
+## now we do *all* the roads, with faint black lines
+context.set_source_rgba(0,0,0,0.9)
 for way in named_ways:
-    v = to_coords(way.nds)
-    is_north = False
-    care_about_north = False
-    x = map(lambda a: ((a[0] + 114.09567)/east_west_extent)+0.05, v)
-    y = map(lambda a: ((a[1] - 51.03727)/north_south_extent)+0.05, v)
-
+    coords = map(project, to_coords(way.nds))
+    
     k = way.tags['name'].strip().lower()
     k = ' '.join(k.split()[:3])
-    line = None
-    ax.add_line(mlines.Line2D(x, y, lw=0.5, alpha=0.4, color='black'))
+    draw_line(context, coords, 1.0)
 
-plt.savefig('map-plot.svg', transparent=True)
-#plt.show()
+surface.write_to_png('map-plot.png')
+context.show_page()
+surface.finish()
