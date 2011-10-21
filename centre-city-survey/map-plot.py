@@ -7,57 +7,46 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import csv
 import numpy
-
-if False:
-    ax = plt.axes()
-    line = mlines.Line2D([0,1], [0,1], lw=5.0, alpha=0.4)
-    ax.add_line(line)
-    plt.show()
-    sys.exit(0)
-
-sys.path.insert(0, '/home/mike/src/osmgeocode')
+from util import ZeroDict
 import osm
 
+## some options to control the map
+fearless_index = 1
+fearless = 'fearless'
+only_fearless = False
+DEBUG = False
+
+## load the OSM data
 osmmap = osm.OSM(open('centre-city.osm','r'))
 
 def to_coords(nodes):
+    "turn an osm.Node into x, y coords"
     rtn = []
     for n in nodes:
         n = osmmap.nodes[n]
         rtn.append( (n.lon, n.lat))
     return rtn
 
-named_nodes = {}
 named_ways = []
 for w in osmmap.ways.values():
     if w.tags.has_key('name'):
         named_ways.append(w)
-        continue
-    
-        k = w.tags['name']
-        print k,w,w.nds
-        if named_nodes.has_key(k):
-            named_nodes[k] = named_nodes[k] + to_coords(w.nds)
-        else:
-            named_nodes[k] = to_coords(w.nds)
 
-
+## this controls the conversion of coords to "graph coords"
 east_west_extent = (-114.04709 + 114.09567) + 0.001
 north_south_extent = (51.05403 - 51.03727) + 0.001
 
 reader = csv.reader(open('sanitized-data.csv','r'))
-titles = reader.next()
+headers = reader.next()
 
-ans = {}
-north = {}
-south = {}
-index = 3
-fearless_index = 1
-fearless = 'fearless'
+ans = ZeroDict()
+north = ZeroDict()
+south = ZeroDict()
 
 for line in reader:
-    #    if line[fearless_index].lower() == fearless:
-    #        continue
+    if only_fearless:
+        if line[fearless_index].lower() == fearless:
+            continue
 
     for road in (line[3].split(',') + line[5].split(',')):
         road = road.strip().lower()
@@ -66,44 +55,35 @@ for line in reader:
         if '8th avenue' in road:
             road = '8 avenue'
 
-        if ans.has_key(road):
-            ans[road] += 1
-        else:
-            ans[road] = 1
+        ans[road] += 1
 
     for road in line[4].split(','):# + line[6].split(',')):
         road = road.strip().lower()
         if len(road) == 0:
             continue
-        if north.has_key(road):
-            north[road] += 1
-        else:
-            north[road] = 1
+        north[road] += 1
         
     for road in line[6].split(','):
         road = road.strip().lower()
         if len(road) == 0:
             continue
-        if south.has_key(road):
-            south[road] += 1
-        else:
-            south[road] = 1
+        south[road] += 1
         
 
-## normalize the road data to be from 0.0 to 1.0
-## also make all the road names like OSM road tags seem to be ("8
-## Avenue" not "8th Avenue")
-
 name_re = re.compile('([0-9]*)[a-zA-Z]* (.*)')
-max = numpy.max(ans.values())
-min = numpy.min(ans.values())
-delta = max - min
 ##print ans
+
+## make all the
+## road names like OSM road tags seem to be ("8 Avenue" not "8th
+## Avenue"). Although to get that, I had to hand-edit the .osm
+## extract, because they're not consistent. This below remaps some
+## of the survey answers to be OSM road names
+##
+## (FIXME: should go edit OSM itself with these fixes.)
+##
 
 def remap(k):
     m = name_re.match(k)
-    if m is None:
-        print 'BOOM',k
     newk = m.group(1) + ' ' + m.group(2).lower()
     if k in ['olympic way se']:
         newk = k
@@ -121,8 +101,14 @@ def remap(k):
         else:
             words = words[:3]
         newk = ' '.join(words)
-    print "turned",k,"into",newk
+    #print "turned",k,"into",newk
     return newk
+
+## normalize the road data to be from 0.0 to 1.0 
+
+max = numpy.max(ans.values())
+min = numpy.min(ans.values())
+delta = max - min
 
 roads = {}
 for k in ans.keys():
@@ -143,18 +129,19 @@ for k in south.keys():
 ## a random CPR node is:
 ## <node id="613170606" lat="51.0442720" lon="-114.0737556" user="sbrown" uid="361745" visible="true" version="2" changeset="8429892" timestamp="2011-06-13T19:39:41Z"/>
 
-for (k,v) in roads.items():
-    print k,v
-print "NORTH:"
-for (k,v) in north_roads.items():
-    print k,v
-print "SOUTH:"
-for (k,v) in south_roads.items():
-    print k,v
+if DEBUG:
+    for (k,v) in roads.items():
+        print k,v
+    print "NORTH:"
+    for (k,v) in north_roads.items():
+        print k,v
+    print "SOUTH:"
+    for (k,v) in south_roads.items():
+        print k,v
 
-print "East/West:"
-for (k,v) in roads.items():
-    print k,v
+    print "East/West:"
+    for (k,v) in roads.items():
+        print k,v
 
 ax = plt.axes()
 
