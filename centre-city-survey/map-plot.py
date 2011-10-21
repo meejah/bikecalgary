@@ -157,10 +157,10 @@ for (k,v) in roads.items():
     print k,v
 
 ax = plt.axes()
-for way in named_ways:
-#    if 'Street' not in way.tags['name'] and 'Avenue' not in way.tags['name']:
-#        continue
 
+## first we do just the blue roads
+## (i.e. "the data)
+for way in named_ways:
     v = to_coords(way.nds)
     is_north = False
     care_about_north = False
@@ -182,16 +182,11 @@ for way in named_ways:
         if is_north:
             if north_roads.has_key(k):
                 linewidth = (north_roads[k]*16.0)+1.0
-                line = mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue')
-            else:
-                #print "is north, but no north_road:",k
-                line = mlines.Line2D(x, y, lw=0.5, alpha=1.0, color='pink')
+                ax.add_line(mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue'))
         else:
             if south_roads.has_key(k):
                 linewidth = (south_roads[k]*16.0)+1.0
-                line = mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue')
-            else:
-                line = mlines.Line2D(x, y, lw=0.5, alpha=1.0, color='yellow')
+                ax.add_line(mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue'))
     else:
         ## for east/west roads we want them to extend past center stret
         if 'avenue' in k and k[-1] == 'e':
@@ -199,11 +194,20 @@ for way in named_ways:
             
         if roads.has_key(k):
             linewidth = (roads[k] * 16.0) + 1.0
-            #print k,linewidth
-            line = mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue')
-        else:
-            line = mlines.Line2D(x, y, lw=0.5, alpha=0.4, color='black')
-    if line:
-        ax.add_line(line)
+            ax.add_line(mlines.Line2D(x, y, lw=linewidth, alpha=1.0, color='blue'))
+
+## now we do *all* the roads, with faint black lines            
+for way in named_ways:
+    v = to_coords(way.nds)
+    is_north = False
+    care_about_north = False
+    x = map(lambda a: ((a[0] + 114.09567)/east_west_extent)+0.05, v)
+    y = map(lambda a: ((a[1] - 51.03727)/north_south_extent)+0.05, v)
+
+    k = way.tags['name'].strip().lower()
+    k = ' '.join(k.split()[:3])
+    line = None
+    ax.add_line(mlines.Line2D(x, y, lw=0.5, alpha=0.4, color='black'))
+
 plt.savefig('map-plot.svg', transparent=True)
 #plt.show()
