@@ -8,12 +8,14 @@ import numpy
 import cairo
 from util import ZeroDict
 import osm
+import math
 
 ## some options to control the map
+percent_labels = False
 fearless_index = 1
 fearless = 'fearless'
 only_fearless = False
-output = 'pdf'
+output = 'png'
 DEBUG = False
 
 ## load the OSM data
@@ -110,21 +112,27 @@ max = numpy.max(ans.values())
 min = numpy.min(ans.values())
 delta = max - min
 
+realdata = {}
 roads = {}
 for k in ans.keys():
     roads[remap(k)] = (ans[k] - min) / float(delta)
+    realdata[remap(k)] = ans[k]
+maxreal = 327.0#numpy.max(realdata.values())
     
 north_roads = {}
 min = numpy.min(north.values())
 delta = numpy.max(north.values()) - min
 for k in north.keys():
     north_roads[remap(k)] = (north[k] - min) / float(delta)
+    realdata[remap(k)] = north[k]
 
+realsouth = {}
 south_roads = {}
 min = numpy.min(south.values())
 delta = numpy.max(south.values()) - min
 for k in south.keys():
     south_roads[remap(k)] = (south[k] - min) / float(delta)
+    realsouth[remap(k)] = south[k]
 
 ## a random CPR node is:
 ## <node id="613170606" lat="51.0442720" lon="-114.0737556" user="sbrown" uid="361745" visible="true" version="2" changeset="8429892" timestamp="2011-06-13T19:39:41Z"/>
@@ -157,15 +165,17 @@ elif output == 'pdf':
 else:
     raise Exception("Don't understand output type:" + output)
 
+## set up our context and make it white
 context = cairo.Context(surface)
+context.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
+context.set_line_cap(cairo.LINE_CAP_ROUND)
 context.set_source_rgb(1,1,1)
 context.rectangle(0,0,1,1)
 context.fill()
 
-context.set_antialias(cairo.ANTIALIAS_SUBPIXEL)
-context.set_line_cap(cairo.LINE_CAP_ROUND)
 
-## normalize the drawing context to (0,0) -> (1,1)
+## normalize the drawing context to (0,0) -> (1,1) no matter how big
+## we made it
 context.scale(width, height)
 
 
@@ -243,6 +253,74 @@ for way in named_ways:
     k = way.tags['name'].strip().lower()
     k = ' '.join(k.split()[:3])
     draw_line(context, coords, 1.0)
+
+##
+## now label some roads. This is mostly "by hand" -- I selected nodes
+## from the .osm data for each street which ends up with "decent
+## looking" label placement.
+##
+## the list below is a list of Way IDs to use (the name is gotten from
+## the tags). If you want to change the placement of a label, look in
+## centre-city.osm, find a better node and exchange its ID here in the
+## list. Ditto to add labels to other roads
+##
+
+if True:
+    ## roads to label
+    labels = ['32000799-7', '32517441-0', '32000716-6', '46695262-4', '32000977-6', '31973594-5']
+
+    ## this is here, with the first "if" to help determine some IDs to
+    ## use for streets you want to label
+    to_name = ['1 Street SW']
+    
+    context.set_source_rgba(1,0,0,0.75)
+    for way in named_ways:
+       if way.tags['name'] in to_name:
+           print way.id,way.tags['name']
+
+       if way.id in labels:
+           print "drawing",way.id,way.tags['name']
+           context.select_font_face('serif', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+           context.set_font_size(0.02)
+           matrix = context.get_font_matrix()
+           if 'Avenue' in way.tags['name']:
+               ## approximate angle for all avenues
+               angle = 0.0752901961851
+               matrix.rotate(angle)
+           else:
+               ## just use 90 degrees for streets
+               matrix.rotate(math.pi/2)
+           context.set_font_matrix(matrix)
+           coords = map(project, to_coords(way.nds))
+           
+           ## FIXME 0.01 should really be half the font-height instead
+           if 'Avenue' in way.tags['name']:
+               context.move_to(coords[0][0], coords[0][1]+0.01)
+           else:
+               context.move_to(coords[0][0]-0.01, coords[0][1])
+
+           ## figure out some label text, optionally with the percent
+           ## of respondents who clicked this response. Could use
+           ## "realmax" or "southmax" to get the normalized percent
+           ## instead...but that's not really a percent so much as a rank
+           txt = way.tags['name']
+
+           if percent_labels:
+               if realdata.has_key(way.tags['name'].lower()):
+                   percent = ((realdata[way.tags['name'].lower()]/maxreal)*100.0)
+
+                   ## for a street, we take the biggest value from the
+                   ## north and south of CPR tracks response. Could put
+                   ## both labels on, but usually they're very close and
+                   ## that will clutter the map a lot more.
+                   if realsouth.has_key(way.tags['name'].lower()):
+                       p = ((realsouth[way.tags['name'].lower()]/maxreal)*100.0)
+                       print way.tags['name'],p
+                       if p > percent:
+                           percent = p
+                   txt = txt + ' (%02.1f%%)' % percent
+           context.show_text(txt)
+    
 
 ## write out the final product
 if output == 'png':
