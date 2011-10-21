@@ -13,6 +13,7 @@ import osm
 fearless_index = 1
 fearless = 'fearless'
 only_fearless = False
+output = 'pdf'
 DEBUG = False
 
 ## load the OSM data
@@ -142,12 +143,19 @@ if DEBUG:
     for (k,v) in roads.items():
         print k,v
 
-if True:
+## it's very odd that each of the Surface subclasses in Cairo (or at
+## least pycairo) have different APIs for writing the output...
+if output == 'svg':
     width, height = 800, 600
     surface = cairo.SVGSurface('map-plot.svg', width, height)
-else:
+elif output == 'png':
     width, height = 800, 600
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+elif output == 'pdf':
+    width, height = 800, 600
+    surface = cairo.PDFSurface(open('map-plot.pdf','w'), width, height)
+else:
+    raise Exception("Don't understand output type:" + output)
 
 context = cairo.Context(surface)
 context.set_source_rgb(1,1,1)
@@ -160,21 +168,9 @@ context.set_line_cap(cairo.LINE_CAP_ROUND)
 ## normalize the drawing context to (0,0) -> (1,1)
 context.scale(width, height)
 
-## first we do just the blue roads
-## (i.e. "the data)
-if False:
-    context.set_source_rgb(0,0,0)
-    context.set_line_width(0.01)
-    context.move_to(0,0)
-    context.line_to(1,1)
-    context.stroke()
-    surface.write_to_png('map-plot.png')
-    context.show_page()
-    surface.finish()
 
-    sys.exit(0)
-
-
+## utility function to draw a set of coordinates with a specific
+## line-width
 def draw_line(ctx, coords, lw):
     ctx.set_line_width(lw/500.0)
     ctx.move_to(coords[0][0], coords[0][1])
@@ -182,12 +178,18 @@ def draw_line(ctx, coords, lw):
         ctx.line_to(coord[0], coord[1])
     ctx.stroke()
 
+## utility function to remap coordinates based on our extent. The
+## magic numbers are google-projection geographic coordinates around
+## Centre City (based on what I extracted from OSM).
 def project(coord):
     x, y = coord
-    return (((x + 114.09567) / east_west_extent) + 0.05,
-            1.0 - ((y - 51.03727) / north_south_extent) + 0.05)
+    return (((x + 114.09567) / east_west_extent),
+            1.0 - ((y - 51.03727) / north_south_extent))
 
+## first we do just the blue roads
+## (i.e. "the data)
 context.set_source_rgb(0,0,1)
+
 for way in named_ways:
     coords = to_coords(way.nds)
     is_north = False
@@ -195,17 +197,23 @@ for way in named_ways:
     if 'Street' in way.tags['name'] or 'Trail' in way.tags['name']:
         care_about_north = True
         for (lng,lat) in coords:
+            ## this is the longitude of a random CPR trainline node
             if lat > 51.0442720:
                 is_north = True
-            else:
-                pass#print "not north enough",lat,way.tags['name']
 
-    ## normalize these coordinates, with a 5% buffer
+    ## normalize these coordinates
     coords = map(project, coords)
 
+    ## we take the first three words of the OSM street name and try to
+    ## match against our survey names (which got transformed somewhat
+    ## above).
     k = way.tags['name'].strip().lower()
     k = ' '.join(k.split()[:3])
     line = None
+
+    ## this north/south stuff is CPR-tracks, which is only for
+    ## Avenues, not streets and only because we split the survey based
+    ## on the CPR tracks.
     if care_about_north:
         if is_north:
             if north_roads.has_key(k):
@@ -216,7 +224,8 @@ for way in named_ways:
                 linewidth = (south_roads[k]*16.0)+1.0
                 draw_line(context, coords, linewidth)
     else:
-        ## for east/west roads we want them to extend past center stret
+        ## for east/west roads we want them to extend past center
+        ## street so we just mess with the name to make se become sw
         if 'avenue' in k and k[-1] == 'e':
             k = k[:-1] + 'w'
             
@@ -224,7 +233,9 @@ for way in named_ways:
             linewidth = (roads[k] * 16.0) + 1.0
             draw_line(context, coords, linewidth)
 
-## now we do *all* the roads, with faint black lines
+##
+## now we draw *all* the roads, with faint black lines
+##
 context.set_source_rgba(0,0,0,0.75)
 for way in named_ways:
     coords = map(project, to_coords(way.nds))
@@ -233,6 +244,8 @@ for way in named_ways:
     k = ' '.join(k.split()[:3])
     draw_line(context, coords, 1.0)
 
-surface.write_to_png('map-plot.png')
+## write out the final product
+if output == 'png':
+    surface.write_to_png('map-plot.png')
 context.show_page()
 surface.finish()
