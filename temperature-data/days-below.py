@@ -12,7 +12,8 @@ days = 0
 for line in file('temperature-data-2010.txt','r').readlines()[1:]:
     foo, min, avg, max = line.split()
     min = float(min)
-    if min < temp:
+    max = float(max)
+    if max < temp:
         days += 1
 
 
