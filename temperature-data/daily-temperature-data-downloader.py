@@ -15,7 +15,7 @@ date = datetime.date(2010,1,1)           # january 1, 2010
 delta = datetime.timedelta(1)           # 1 day
 
 data = file('temperature-data-%04d.txt'%date.year, 'w')
-data.write('#year/month/day min avg max')
+data.write('#year/month/day min avg max\n')
 
 
 for i in range(365):
