@@ -106,13 +106,15 @@ def gp_output(f, table):
     items.sort(sorter)
     items.reverse()
 
+    total = float(reduce(lambda x,y: x+y, map(lambda x: x[1], items)))
+
     f.write('# ' + ', '.join(map(lambda x: x[0], items)) + '\n\n')
     for (k,v) in items:
         if k == '':
             f.write('n/a')
         else:
             f.write(k)
-        f.write(' '+str(v)+'\n')
+        f.write(' %f %f\n' % (v, (v/total)*100.0))
 
 def csv_output(f, table):
     """outputs CSV data, hopfully good for Excel"""
