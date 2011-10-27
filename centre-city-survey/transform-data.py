@@ -30,6 +30,11 @@ drive = ZeroDict()
 trip_end = ZeroDict()
 trip_begin = ZeroDict()
 
+north_east_roads = ZeroDict()
+north_north_roads = ZeroDict()
+south_east_roads = ZeroDict()
+south_north_roads = ZeroDict()
+
 def normalizeStreetName(s):
     return s.split('(')[0].strip()
 
@@ -37,6 +42,24 @@ for line in reader:
     ages[line[0]] += 1
     rider_types[line[1]] += 1
     gender[line[2]] += 1
+
+    for street in line[3].split(','):
+        if street.strip() == '':
+            continue
+        north_east_roads[normalizeStreetName(street)] += 1
+    for street in line[4].split(','):
+        if street.strip() == '':
+            continue
+        north_north_roads[normalizeStreetName(street)] += 1
+    for street in line[5].split(','):
+        if street.strip() == '':
+            continue
+        south_east_roads[normalizeStreetName(street)] += 1
+    for street in line[6].split(','):
+        if street.strip() == '':
+            continue
+        south_north_roads[normalizeStreetName(street)] += 1
+        
 
     assert(len(line[7].strip()) == 0 or len(line[8].strip()) == 0)
     for street in line[7].split(','):
@@ -116,7 +139,11 @@ for (name, data) in [('ages', ages),
                      ('drive',drive),
                      ('transit',transit),
                      ('trip_starts',trip_begin),
-                     ('trip_dests',trip_end)                     
+                     ('trip_dests',trip_end),
+                     ('roads_north_north', north_north_roads),
+                     ('roads_north_east', north_east_roads),
+                     ('roads_south_north', south_north_roads),
+                     ('roads_south_east', south_east_roads),
                      ]:
     gp_output(open('trans_'+name+'-gp', 'w'), data)
     csv_output(open('trans_'+name+'.csv', 'w'), data)
