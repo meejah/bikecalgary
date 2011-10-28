@@ -1,0 +1,65 @@
+## see roads_data.py for the thing which produces the data for these
+## plots
+
+## 50% "dim" colours
+set style fill solid 0.50
+# borderless data bars
+#set style fill solid noborder
+# black borders
+set style fill solid border -1
+# non-touching bars 
+set boxwidth 0.8
+
+## desciprtion
+#set title "North of CPR\nNorth/South Routes"
+
+## magic to get a "horizontal" plot, which is actually done by just
+## rotating the plot (e.g. with convert) afterwards. since it's a mess
+## to get a rotated key, we make those ourselves after (by chopping
+## out of a non-rotated graph). yuck. 
+
+set xtic rotate by 90 scale 0 offset 0,-7
+unset ytics
+set y2tics rotate by 90 offset 0,-1
+set xlabel ' '
+set key off
+
+## we only output png since we need to rotate the afterwards
+set term png size 600,800 large
+
+## graph style
+set style data histogram
+set style histogram rowstacked
+
+## consistent scale
+set yrange [0:210]
+
+## now output all four plots
+
+## 20 rows
+set size 1,1
+set output "roads_north_north.png"
+plot "roads_north_north.gp" using 2:xticlabel(1) title ' ', '' using 3:xticlabel(1) title ' ', '' using 4 ti ' ', '' using 5 ti ' '
+
+## 11 rows
+set size 0.6,1
+set output "roads_north_east.png"
+plot "roads_north_east.gp" using 2:xticlabel(1) title ' ', '' using 3:xticlabel(1) title ' ', '' using 4 ti ' ', '' using 5 ti ' '
+
+## biggest one, 21 rows
+set size 1,1
+set output "roads_south_north.png"
+plot "roads_south_north.gp" using 2:xticlabel(1) title ' ', '' using 3:xticlabel(1) title ' ', '' using 4 ti ' ', '' using 5 ti ' '
+
+## 9 rows
+set size 0.5,1
+set output "roads_south_east.png"
+plot "roads_south_east.gp" using 2:xticlabel(1) title ' ', '' using 3:xticlabel(1) title ' ', '' using 4 ti ' ', '' using 5 ti ' '
+
+## dummy one, for the key
+set key default
+set size 1,1
+set output "dummy_key.png"
+plot "roads_south_east.gp" using 2:xticlabel(1) title 'Confident', '' using 3:xticlabel(1) title 'Fearless', '' using 4 ti 'Interested', '' using 5 ti 'Reluctant'
+
+## chop out the key: 375,20 -> 150,70
