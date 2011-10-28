@@ -57,6 +57,11 @@ roads.png: roads_data.py roads_north_east.gp gnuplot-roads
 	convert -size 350x24 -background white -font Helvetica -pointsize 16 "caption:South of CPR" caption.png
 	composite -geometry "+140+1240" caption.png roads.png roads.png
 	composite -geometry "+0+1260" roads_south_north.png roads.png roads.png
+	rm caption.png
+	rm foo.png
+	rm bar.png
+	rm dummy_key.png
+	rm key.png
 
 
 agegender.gp: ages_by_gender.py
