@@ -1,7 +1,12 @@
 ## see ridertypes_by_gender.py for the data construction
 
-## filled, no legend and boxes which don't touch
-set style fill solid 0.2
+## 50% "dim" colours
+set style fill solid 0.50
+# borderless data bars
+#set style fill solid noborder
+# black borders
+set style fill solid border -1
+# non-touching bars 
 set boxwidth 0.8
 
 ## desciprtion
