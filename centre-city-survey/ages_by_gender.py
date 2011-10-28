@@ -17,11 +17,21 @@ titles = reader.next()                  # headers
 genders = {'male': ZeroDict(),
            'female': ZeroDict()}
 
+## for a couple days, the buckets weren't strictly separate.
+def mapAge(age):
+    if age == '25-35':
+        age = '25-34'
+    elif age == '35-45':
+        age = '35-44'
+    elif age == '45-55':
+        age = '45-54'
+    return age
+
 for line in reader:
     gender = line[2].strip().lower()
     if gender not in ['male', 'female']:
         continue
-    age = line[0].strip().lower()
+    age = mapAge(line[0].strip().lower())
     rt = genders[gender]
     rt[age] += 1
     
