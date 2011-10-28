@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ##
-## produce data for the rider types by gender graphs
+## produce data for the ages graph with gender
 ##
 
 import csv
@@ -21,11 +21,11 @@ for line in reader:
     gender = line[2].strip().lower()
     if gender not in ['male', 'female']:
         continue
-    ridertype = line[1].strip().lower()
+    age = line[0].strip().lower()
     rt = genders[gender]
-    rt[ridertype] += 1
+    rt[age] += 1
     
-f = open("genderridertypes.gp", 'w')
+f = open("genderages.gp", 'w')
 print genders
 keys = genders['male'].keys()
 keys.sort()
@@ -39,7 +39,7 @@ for gender in genders.keys():
 f.close()
 
 
-f = open('ridergendertypes.gp', 'w')
+f = open('agegender.gp', 'w')
 f.write('# type male female\n')
 for k in keys:
     f.write(k + ' ')

@@ -1,5 +1,5 @@
 
-all: map-plot.png plot_3.png plot_4.png plot_5.png plot_6.png ridertypes.png
+all: map-plot.png plot_3.png plot_4.png plot_5.png plot_6.png ridertypes.png genderages.png
 
 map-plot.png: map-plot.py
 	python map-plot.py
@@ -13,5 +13,13 @@ plot_5.png: plots.py
 plot_6.png: plots.py
 	python plots.py 6
 
+agegender.gp: ages_by_gender.py
+	python ages_by_gender.py
+genderridertypes.gp: ridertypes_by_gender.py
+	python ridertypes_by_gender.py
+
 ridertypes.png: gnuplot-ridertypes genderridertypes.gp
 	gnuplot gnuplot-ridertypes
+
+genderages.png: gnuplot-genderages agegender.gp
+	gnuplot gnuplot-genderages
