@@ -20,7 +20,7 @@ set style data histogram
 #set style histogram gap 5
 set style histogram rowstacked
 
-plot "genderridertypes.gp" using 2:xticlabel(1)  title 'Confident', '' using 3  title 'Fearless', '' using 4  title 'Interested', '' using 5  title 'Reluctant'
+plot "genderridertypes.gp" using 2:xticlabel(1)  title 'Confident (53%)', '' using 3  title 'Fearless (36%)', '' using 4  title 'Interested (10%)', '' using 5  title 'Reluctant (1%)'
 
 ## also output png
 set term png size 800,600 large
