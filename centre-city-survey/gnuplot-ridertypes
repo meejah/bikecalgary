@@ -1,11 +1,10 @@
 
 ## filled, no legend and boxes which don't touch
 set style fill solid 0.2
-set key off
 set boxwidth 0.8
 
 ## desciprtion
-set title "Rider Types"
+set title "Rider Types by Gender"
 
 ## output a SVG graphic
 set term svg
@@ -15,7 +14,13 @@ set output "ridertypes.svg"
 ## the "smooth freq" isn't needed for this, but can be used
 ## to "autocreate" a histogram -- it accumulates counts from
 ## any values with the same x-coord. linestyle 3 in blue by default
-plot "trans_ridertypes-gp" using 2:xticlabel(1) smooth freq with boxes ls 3
+#set style histogram columnstacked
+
+set style data histogram
+#set style histogram gap 5
+set style histogram rowstacked
+
+plot "genderridertypes.gp" using 2:xticlabel(1)  title 'Confident', '' using 3  title 'Fearless', '' using 4  title 'Interested', '' using 5  title 'Reluctant'
 
 ## also output png
 set term png size 800,600 large
