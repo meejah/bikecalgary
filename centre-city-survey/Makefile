@@ -2,14 +2,16 @@
 all: map-plot.png ridertypes.png genderages.png roads.png
 
 
-map-plot.png: map-plot.py
+map-plot.png: map-plot.py Makefile
 	python map-plot.py
+	convert -size 3000x15 -fill green -background white -font Helvetica -pointsize 12 "caption:Map data CC BY-SA 2.0 OpenStreetMap.org"  caption.png
+	composite -geometry "+545+5" caption.png map-plot.png map-plot.png
 
 ## warning, these are a bit o' a hackjob since "gnuplot gnuplot-roads"
 ## really builds all four and I don't know if you can have multiple
 ## targets. and I don't really care, 'cause it works.
 
-roads.png: roads_data.py roads_north_east.gp gnuplot-roads
+roads.png: roads_data.py roads_north_east.gp gnuplot-roads Makefile
 	python roads_data.py
 	gnuplot gnuplot-roads
 
@@ -66,6 +68,7 @@ roads.png: roads_data.py roads_north_east.gp gnuplot-roads
 
 agegender.gp: ages_by_gender.py
 	python ages_by_gender.py
+
 genderridertypes.gp: ridertypes_by_gender.py
 	python ridertypes_by_gender.py
 
