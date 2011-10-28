@@ -38,11 +38,21 @@ for gender in genders.keys():
     f.write('\n')
 f.close()
 
+def nicekey(k):
+    if k == 'under 18':
+        return '<18'
+    return k
 
 f = open('agegender.gp', 'w')
 f.write('# type male female\n')
+
+## "under 18" ends up last; make it first
+keys.insert(0, keys[-1])
+keys = keys[:-1]
+
+## write data
 for k in keys:
-    f.write(k + ' ')
+    f.write(nicekey(k) + ' ')
     for g in ['male', 'female']:
         num = genders[g][k]
         f.write(str(num) + ' ')
