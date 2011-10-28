@@ -4,6 +4,9 @@
 ## almanac.com
 
 ## http://www.almanac.com/weather/history/AB/Calgary/2010-01-01
+##
+## could also try environment canada via this link
+## http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html?StationID=2205&Month=10&Day=21&Year=2011&timeframe=2&format=csv
 
 import urllib2
 import re
