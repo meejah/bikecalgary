@@ -1,0 +1,34 @@
+## see ridertypes_by_gender.py for the data construction
+
+## 50% "dim" colours
+set style fill solid 0.50
+# borderless data bars
+#set style fill solid noborder
+# black borders
+set style fill solid border -1
+# non-touching bars 
+set boxwidth 0.8
+
+## desciprtion
+set title "Age Group by Gender"
+
+## output a SVG graphic
+set term svg
+set output "genderages.svg"
+
+
+## the "smooth freq" isn't needed for this, but can be used
+## to "autocreate" a histogram -- it accumulates counts from
+## any values with the same x-coord. linestyle 3 in blue by default
+#set style histogram columnstacked
+
+set style data histogram
+#set style histogram gap 5
+set style histogram rowstacked
+
+plot "agegender.gp" using 2:xticlabel(1) title 'Male' ls 3, '' using 3:xticlabel(1) title 'Female' ls 1
+
+## also output png
+set term png size 800,600 large
+set output "genderages.png"
+replot
