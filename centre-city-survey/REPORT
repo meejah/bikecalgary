@@ -1,0 +1,48 @@
+
+Thank you to everyone who filled out the survey! We recived 327
+responses and nearly 12,500 words of comments (almost 60% chose to
+leave a comment). Of respondents, 30% were female, 66% male and 3%
+chose not to answer. Cyclist types varied from 53% Confident, 36%
+Fearless, 10% Interested and 1% Reluctant. These definitions &mdash;
+although a little confusing &mdash; were quoted directly from the
+Cycling Strategy. Most respondents (70%) were between 25 and 45.
+
+The majority of cyclists selected only a few routes: the median number
+of roads selected being was between 2 and 4. South of the CPR line,
+the median number of east-west routes selected was 2 while north-south
+was 4. North of the CPR line, respondants chose a median of 3
+east-west and 4 north-south routes.
+
+These very specific route-choices existed even though the survey was
+somewhat vague by necessity: when designing the survey, the only
+information we had from the City was that "several" routes would be
+developed each of the next three years in Centre City. The budget,
+type of infrastructure or scope of potential changes were not known to
+us &mdash; this drastically limited our chance to ask very specific
+questions.
+
+Nearly 60% of riders "Always" ride when it's nice out and a further
+25% "Usually" do. Only 2% of respondents "Never" or "Rarely" ride when
+it's nice out. In the winter is a slightly different story, with 33%
+"Always" or "Usually" riding while 38% "Rarely" or "Never" ride in the
+winter.
+
+Some notes on the charts: the map is an amalgamation of all four of
+the "roads" questions, with line-thickness representing the normalized
+number of selections for that question. That is, the line-thickness is
+thinnest for the least responses and thickest for the most responses.
+
+The stacked, horizontal histograms versions of the same data has a
+consistent horizontal scale and shows the absolute number of
+respondents who selected that option.
+
+We welcome further feedback and analysis of the data collected. A
+sanitized version of the data (without email addresses, and randomized
+order) along with all code used to produce the charts is available <a
+href="http://github.com/meejah/bikecalgary">at GitHub</a>. Feedback
+can be directed to <a href="infrastructure@bikecalgary.org">infrastructure</a>.
+
+Map data copyright <a
+href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA 2.0</a>
+from <a href="http://www.openstreetmap.org">OpenStreetMap</a>
+contributors.
