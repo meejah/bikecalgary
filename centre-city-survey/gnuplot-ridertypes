@@ -1,3 +1,4 @@
+## see ridertypes_by_gender.py for the data construction
 
 ## filled, no legend and boxes which don't touch
 set style fill solid 0.2
