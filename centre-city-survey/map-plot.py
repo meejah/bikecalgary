@@ -222,7 +222,7 @@ for way in named_ways:
     line = None
 
     ## this north/south stuff is CPR-tracks, which is only for
-    ## Avenues, not streets and only because we split the survey based
+    ## streets, not avenues and only because we split the survey based
     ## on the CPR tracks.
     if care_about_north:
         if is_north:
@@ -241,6 +241,9 @@ for way in named_ways:
             
         if roads.has_key(k):
             linewidth = (roads[k] * 16.0) + 1.0
+            ## we scaled the context to be 0,0 -> 1,1 so need to
+            ## compensate for aspect ratio
+            linewidth = linewidth * (width/float(height))
             draw_line(context, coords, linewidth)
 
 ##
