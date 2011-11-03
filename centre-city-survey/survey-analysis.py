@@ -35,3 +35,21 @@ print "north of cpr, east-west routes:  ",numpy.median(north_east),"\t\t",numpy.
 print "north of cpr, north-south routes:",numpy.median(north_north),"\t\t",numpy.average(north_north),"\t",numpy.amax(north_north)
 print "south of cpr, east-west routes:  ",numpy.median(south_east),"\t\t",numpy.average(south_east),"\t",numpy.amax(south_east)
 print "south of cpr, north-south routes:",numpy.median(south_north),"\t\t",numpy.average(south_north),"\t",numpy.amax(south_north)
+
+for data in [north_east,north_north,south_east,south_north]:
+    maxn = numpy.amax(data)
+    nummax = 0
+    for x in data:
+        if x == maxn:
+            nummax += 1
+    print "max",maxn
+    print "nummax=",nummax
+
+for data in [north_east,north_north,south_east,south_north]:
+    minn = numpy.amin(data)
+    nummin = 0
+    for x in data:
+        if x == minn:
+            nummin += 1
+    print "min",minn
+    print "nummin=",nummin
