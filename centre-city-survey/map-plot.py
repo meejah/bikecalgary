@@ -18,6 +18,23 @@ only_fearless = False
 output = 'png'
 DEBUG = False
 
+if True:
+    ## mostly-colour used to indicate popularity
+    MAX_LINE_THICKNESS = 0.0
+    MIN_LINE_THICKNESS = 4.0
+    COLOR_MIN = (0.6,0.6,1)
+    COLOR_MAX = (1,0,0)
+    LABEL_COLOR = (0,0.1,0,1.0)
+    
+else:
+    ## just line-thickness used to indicate popularity
+    ## (this is the published map)
+    MAX_LINE_THICKNESS = 16.0
+    MIN_LINE_THICKNESS = 1.0
+    COLOR_MIN = (0,0,1)
+    COLOR_MAX = (0,0,1)
+    LABEL_COLOR = (1,0,0,0.75)
+
 ## load the OSM data
 osmmap = osm.OSM(open('centre-city.osm','r'))
 
@@ -181,7 +198,11 @@ context.scale(width, height)
 
 ## utility function to draw a set of coordinates with a specific
 ## line-width
-def draw_line(ctx, coords, lw):
+def draw_line(ctx, coords, lw, color):
+    if len(color) == 3:
+        context.set_source_rgb(*color)
+    else:
+        context.set_source_rgba(*color)
     ctx.set_line_width(lw/500.0)
     ctx.move_to(coords[0][0], coords[0][1])
     for coord in coords[1:]:
@@ -195,6 +216,10 @@ def project(coord):
     x, y = coord
     return (((x + 114.09567) / east_west_extent),
             1.0 - ((y - 51.03727) / north_south_extent))
+
+## (linear) interpolate between two colours
+def interpolate(a, b, amt):
+    return map(lambda x,y: y + ((float(x)-float(y))*amt), a, b)
 
 ## first we do just the blue roads
 ## (i.e. "the data)
@@ -224,15 +249,18 @@ for way in named_ways:
     ## this north/south stuff is CPR-tracks, which is only for
     ## streets, not avenues and only because we split the survey based
     ## on the CPR tracks.
+    col = COLOR_MIN
     if care_about_north:
         if is_north:
             if north_roads.has_key(k):
-                linewidth = (north_roads[k]*16.0)+1.0
-                draw_line(context, coords, linewidth)
+                col = interpolate(COLOR_MAX, COLOR_MIN, north_roads[k])
+                linewidth = (north_roads[k]*MAX_LINE_THICKNESS)+MIN_LINE_THICKNESS
+                draw_line(context, coords, linewidth, col)
         else:
             if south_roads.has_key(k):
-                linewidth = (south_roads[k]*16.0)+1.0
-                draw_line(context, coords, linewidth)
+                col = interpolate(COLOR_MAX, COLOR_MIN, south_roads[k])
+                linewidth = (south_roads[k]*MAX_LINE_THICKNESS)+MIN_LINE_THICKNESS
+                draw_line(context, coords, linewidth, col)
     else:
         ## for east/west roads we want them to extend past center
         ## street so we just mess with the name to make se become sw
@@ -240,22 +268,22 @@ for way in named_ways:
             k = k[:-1] + 'w'
             
         if roads.has_key(k):
-            linewidth = (roads[k] * 16.0) + 1.0
+            col = interpolate(COLOR_MAX, COLOR_MIN, roads[k])
+            linewidth = (roads[k] * MAX_LINE_THICKNESS) + MIN_LINE_THICKNESS
             ## we scaled the context to be 0,0 -> 1,1 so need to
             ## compensate for aspect ratio
             linewidth = linewidth * (width/float(height))
-            draw_line(context, coords, linewidth)
+            draw_line(context, coords, linewidth, col)
 
 ##
 ## now we draw *all* the roads, with faint black lines
 ##
-context.set_source_rgba(0,0,0,0.75)
 for way in named_ways:
     coords = map(project, to_coords(way.nds))
     
     k = way.tags['name'].strip().lower()
     k = ' '.join(k.split()[:3])
-    draw_line(context, coords, 1.0)
+    draw_line(context, coords, 1.0, (0,0,0,0.75))
 
 ##
 ## now label some roads. This is mostly "by hand" -- I selected nodes
@@ -283,6 +311,7 @@ if True:
 
        if way.id in labels:
            print "drawing",way.id,way.tags['name']
+           context.set_source_rgba(*LABEL_COLOR)
            context.select_font_face('serif', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
            context.set_font_size(0.02)
            matrix = context.get_font_matrix()
