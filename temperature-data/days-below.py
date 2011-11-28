@@ -8,14 +8,18 @@ if len(sys.argv) < 2:
     
 temp = int(sys.argv[1])
 
-days = 0
+maxdays = 0
+mindays = 0
 for line in file('temperature-data-2010.txt','r').readlines()[1:]:
     foo, min, avg, max = line.split()
     min = float(min)
     max = float(max)
     if max < temp:
-        days += 1
+        maxdays += 1
+    if min < temp:
+        mindays += 1
 
 
-print days,"days below",temp
+print maxdays,"days with High below",temp
+print mindays,"days with Low below",temp
 
