@@ -10,7 +10,7 @@ temp = int(sys.argv[1])
 
 maxdays = 0
 mindays = 0
-for line in file('temperature-data-2010.txt','r').readlines()[1:]:
+for line in file('temperature-data-2011.txt','r').readlines()[1:]:
     foo, min, avg, max = line.split()
     min = float(min)
     max = float(max)

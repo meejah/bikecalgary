@@ -2,9 +2,9 @@ set ylabel "degrees C"
 #set xdata time
 #set timefmt "%Y/%m/%d"
 set term png size 1024,768 large
-set output "daily-temperatures-2010.png"
+set output "daily-temperatures-2011.png"
 
-set title "2010 Daily Temperatures\ndata from almanac.com"
+set title "2011 Daily Temperatures\ndata from almanac.com"
 
-plot "temperature-data-2010.txt" using 0:3 with lines ti "average", "temperature-data-2010.txt" using 0:2 with lines ti "low", "temperature-data-2010.txt" using 0:4 with lines ti "high"
+plot "temperature-data-2011.txt" using 0:3 with lines ti "average", "temperature-data-2011.txt" using 0:2 with lines ti "low", "temperature-data-2011.txt" using 0:4 with lines ti "high"
 
